@@ -10,13 +10,15 @@ import { metamask, thirdweb } from '../assets';
 const CampaignDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { donate, getDonations, contract, address } = useStateContext();
+  const { donate, getDonations, contract, address, getCampaigns } = useStateContext();
 
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState('');
   const [donators, setDonators] = useState([]);
 
-  const remainingDays = daysLeft(state.deadline);
+  const remainingDays = daysLeft(getCampaigns.deadline);
+  // console.log(getCampaigns.deadline.toString())
+  console.log(state);
 
   const fetchDonators = async () => {
     const data = await getDonations(state.pId);
@@ -51,7 +53,7 @@ const CampaignDetails = () => {
         </div>
 
         <div className="flex md:w-[150px] w-full flex-wrap justify-between gap-[30px]">
-          <CountBox title="Days Left" value={remainingDays} />
+          <CountBox title="Days Left" value={state.deadline} />
           <CountBox title={`Raised of ${state.target}`} value={state.amountCollected} />
           <CountBox title="Total Backers" value={donators.length} />
         </div>

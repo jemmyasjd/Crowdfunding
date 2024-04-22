@@ -45,25 +45,62 @@ export const StateContextProvider = ({ children }) => {
     }
   };
 
+  // const getCampaigns = async () => {
+  //   try {
+     
+  //     const campaigns = await contract.getCampaigns();
+  //     console.log("campaigns", campaigns);
+
+  //     return campaigns.map((campaign, i) => ({
+        
+  //       owner: campaign.owner,
+  //       title: campaign.title,
+  //       description: campaign.description,
+  //       target: ethers.utils.formatEther(campaign.target.toString()),
+  //       deadline: campaign.deadline.toNumber(),
+  //       amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
+  //       image: campaign.image,
+  //       pId: i
+  //     }));
+      
+  //   } catch (error) {
+  //     console.error("Error fetching campaigns:", error);
+  //     return [];
+  //   }
+  // };
+
+
   const getCampaigns = async () => {
     try {
       const campaigns = await contract.getCampaigns();
+  
+      const currentDateInSeconds = Math.floor(Date.now() / 1000); // Current time in seconds
+  
+      return campaigns.map((campaign, i) => {
+        const deadlineInSeconds = campaign.deadline.toNumber(); // Convert BigNumber to JavaScript number
+        const remainingTimeSeconds = deadlineInSeconds - currentDateInSeconds;
+        console.log("remainingTimeSeconds", remainingTimeSeconds);
+        const remainingDays = Math.floor(remainingTimeSeconds / (60 * 60 * 24)); // Convert remaining seconds to days
+        console.log("remainingDays", remainingDays);
 
-      return campaigns.map((campaign, i) => ({
-        owner: campaign.owner,
-        title: campaign.title,
-        description: campaign.description,
-        target: ethers.utils.formatEther(campaign.target.toString()),
-        deadline: campaign.deadline.toNumber(),
-        amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
-        image: campaign.image,
-        pId: i
-      }));
+        return {
+          owner: campaign.owner,
+          title: campaign.title,
+          description: campaign.description,
+          target: ethers.utils.formatEther(campaign.target.toString()),
+          // deadline: new Date(deadlineInSeconds * 1000), // Convert seconds back to Date object
+          deadline: remainingDays, // Days left instead of deadline
+          amountCollected: ethers.utils.formatEther(campaign.amountCollected.toString()),
+          image: campaign.image,
+          pId: i
+        };
+      });
     } catch (error) {
       console.error("Error fetching campaigns:", error);
       return [];
     }
   };
+  
 
   const getUserCampaigns = async () => {
     const allCampaigns = await getCampaigns();
