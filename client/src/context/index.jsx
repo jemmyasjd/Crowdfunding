@@ -1,4 +1,4 @@
-import React, { useContext, createContext } from 'react';
+import React, { useContext, createContextuseContext, createContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 
 // Import your contract ABI here
@@ -9,13 +9,38 @@ const contractAddress = '0x2294f14cBD1C7E1A058e948bE0F4d86eFaA9cb8B';
 
 const StateContext = createContext();
 
+// const StateContext = createContext();
+
 export const StateContextProvider = ({ children }) => {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  const signer = provider.getSigner();
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [contract, setContract] = useState(null);
 
-  const contract = new ethers.Contract(contractAddress, CampaignContractABI, signer);
+  useEffect(() => {
+    // Check if MetaMask is installed and injected
+    if (window.ethereum) {
+      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+      const web3Signer = web3Provider.getSigner();
+      setProvider(web3Provider);
+      setSigner(web3Signer);
+    } else {
+      console.error("MetaMask not detected. Please install MetaMask.");
+    }
+  }, []);
 
-  const address = signer.getAddress();
+  useEffect(() => {
+    if (signer) {
+      const contractInstance = new ethers.Contract(contractAddress, CampaignContractABI, signer);
+      setContract(contractInstance);
+
+      const getAddress = async () => {
+        const userAddress = await signer.getAddress();
+        setAddress(userAddress);
+      };
+      getAddress();
+    }
+  }, [signer]);
 
   const connect = async () => {
     try {
@@ -24,7 +49,6 @@ export const StateContextProvider = ({ children }) => {
       console.error('Error connecting to MetaMask:', error);
     }
   };
-
  
   
 
