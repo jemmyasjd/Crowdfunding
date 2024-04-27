@@ -1,6 +1,7 @@
 import React, { useContext, createContextuseContext, createContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // Import your contract ABI here
 import CampaignContractABI from './CampaignContractABI.json';
 
@@ -26,6 +27,10 @@ export const StateContextProvider = ({ children }) => {
       setSigner(web3Signer);
     } else {
       console.error("MetaMask not detected. Please install MetaMask.");
+      toast.error("MetaMask not detected. Please install MetaMask.",{
+        position: "top-center",
+        pauseOnHover: false,
+      });
     }
   }, []);
 
@@ -170,6 +175,7 @@ export const StateContextProvider = ({ children }) => {
       }}
     >
       {children}
+    <ToastContainer/>
     </StateContext.Provider>
   );
 };
